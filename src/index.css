@@ -1,0 +1,132 @@
+:root {
+  /* 70% Primary Palette: Deep Forest Green & Warm Cream Paper */
+  --bg-forest: #041c12;
+  --bg-forest-card: #082c1e;
+  --bg-forest-hover: #0b3b28;
+  
+  --paper-cream: #f7f3e8;
+  --paper-cream-dark: #efe8d4;
+  --paper-border: #041c12;
+
+  /* 20% Typography & Neutral Tones */
+  --text-cream: #f7f3e8;
+  --text-dark: #041c12;
+  --text-muted: #8eb4a2;
+  --text-muted-paper: #3d5e50;
+  
+  /* 10% Controlled Accents: Hot Pink & Bright Yellow */
+  --accent-pink: #ff0055;
+  --accent-pink-hover: #ff2270;
+  --accent-yellow: #ffdc00;
+  --accent-yellow-hover: #ffe633;
+  --accent-gold: #e6b800;
+
+  /* Typography Stacks */
+  --font-display: 'Syne', 'Space Grotesk', sans-serif;
+  --font-serif: 'Playfair Display', serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-body: 'Inter', sans-serif;
+
+  /* Borders & Shadows */
+  --border-thick: 3px solid #041c12;
+  --border-pink: 3px solid #ff0055;
+  --border-yellow: 3px solid #ffdc00;
+  --border-cream: 2px solid rgba(247, 243, 232, 0.2);
+  
+  --shadow-paper: 5px 7px 0px #041c12;
+  --shadow-pink: 5px 7px 0px #ff0055;
+  --shadow-yellow: 5px 7px 0px #ffdc00;
+
+  --radius-sm: 4px;
+  --radius-md: 10px;
+  --radius-lg: 18px;
+  --radius-pill: 9999px;
+
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-forest);
+  color: var(--text-cream);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  line-height: 1.5;
+  overflow-x: hidden;
+  background-image: 
+    radial-gradient(circle at 10% 15%, rgba(255, 220, 0, 0.06) 0%, transparent 45%),
+    radial-gradient(circle at 90% 80%, rgba(255, 0, 85, 0.06) 0%, transparent 45%),
+    linear-gradient(180deg, #03170e 0%, #041c12 50%, #02110a 100%);
+  background-attachment: fixed;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-forest);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--accent-yellow);
+  border: 2px solid var(--bg-forest);
+  border-radius: var(--radius-pill);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-pink);
+}
+
+/* Entrance Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Post-it Badge Stamps */
+.stamp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.35rem 0.85rem;
+  background: var(--accent-yellow);
+  color: var(--text-dark);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 2px solid var(--text-dark);
+  box-shadow: 2px 3px 0px var(--text-dark);
+  transform: rotate(-1deg);
+  transition: var(--transition-fast);
+}
+
+.stamp-badge:hover {
+  transform: rotate(0deg) scale(1.02);
+}
+
+.stamp-badge-pink {
+  background: var(--accent-pink);
+  color: #ffffff;
+  transform: rotate(1.5deg);
+}
+
+.stamp-badge-pink:hover {
+  transform: rotate(0deg) scale(1.02);
+}
