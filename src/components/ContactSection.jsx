@@ -12,7 +12,6 @@ export default function ContactSection() {
             </span>
             <span className="contact-card-label">EMAIL ME</span>
           </div>
-          <span className="contact-card-email-badge">PROMPT RESPONSE</span>
         </div>
 
         <div className="contact-card-email-body">
