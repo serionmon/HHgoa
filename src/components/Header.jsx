@@ -1,5 +1,5 @@
 import React from 'react';
-import { Palmtree, Waves, Sun, Sparkles } from 'lucide-react';
+import { Palmtree, Waves, Sparkles } from 'lucide-react';
 
 export default function Header() {
   return (

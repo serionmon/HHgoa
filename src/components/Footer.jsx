@@ -1,5 +1,5 @@
 import React from 'react';
-import { Github, Instagram, Linkedin, Mail } from 'lucide-react';
+import { Github, Instagram } from 'lucide-react';
 
 const XIcon = ({ size = 14 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -8,51 +8,52 @@ const XIcon = ({ size = 14 }) => (
 );
 
 export default function Footer() {
-  const socialLinks = [
+  const quickCtaLinks = [
     {
-      name: 'GitHub',
+      name: 'GITHUB',
       url: 'https://github.com/serionmon',
       icon: <Github size={14} />,
-      ariaLabel: 'GitHub profile @serionmon',
-      title: 'GitHub: @serionmon',
-      isExternal: true,
+      ariaLabel: 'GitHub @serionmon',
     },
     {
       name: 'X',
       url: 'https://x.com/Serionmon',
       icon: <XIcon size={14} />,
-      ariaLabel: 'X profile @Serionmon',
-      title: 'X: @Serionmon',
-      isExternal: true,
+      ariaLabel: 'X @Serionmon',
     },
     {
-      name: 'Instagram',
+      name: 'INSTAGRAM',
       url: 'https://www.instagram.com/irl.rohiit/',
       icon: <Instagram size={14} />,
-      ariaLabel: 'Instagram profile @irl.rohiit',
-      title: 'Instagram: @irl.rohiit',
-      isExternal: true,
-    },
-    {
-      name: 'LinkedIn',
-      url: 'https://www.linkedin.com/in/rohit-38a9b6428/',
-      icon: <Linkedin size={14} />,
-      ariaLabel: 'LinkedIn profile of Rohit',
-      title: 'LinkedIn: Rohit',
-      isExternal: true,
-    },
-    {
-      name: 'Email',
-      url: 'mailto:rohitbmu141@gmail.com',
-      icon: <Mail size={14} />,
-      ariaLabel: 'Send email to rohitbmu141@gmail.com',
-      title: 'Email: rohitbmu141@gmail.com',
-      isExternal: false,
+      ariaLabel: 'Instagram @irl.rohiit',
     },
   ];
 
   return (
     <footer className="section-footer">
+      {/* Social CTA Section */}
+      <div className="footer-cta-wrapper">
+        <div className="footer-cta-content">
+          <span className="footer-cta-eyebrow">BUILT SOMETHING COOL?</span>
+          <p className="footer-cta-heading">LET'S CONNECT.</p>
+          <div className="footer-cta-buttons">
+            {quickCtaLinks.map((link) => (
+              <a
+                key={link.name}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="footer-cta-pill"
+                aria-label={link.ariaLabel}
+              >
+                {link.icon}
+                <span>{link.name}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <div className="footer-content">
         <p className="footer-title">
           HACKER HOUSE GOA 2026 • BUILDER IDENTITY
@@ -68,29 +69,8 @@ export default function Footer() {
             #FrameInGoa
           </a>
         </p>
-
-        <div className="footer-connect">
-          <span className="footer-connect-label">CONNECT WITH US:</span>
-          <div className="footer-social-links">
-            {socialLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.url}
-                target={link.isExternal ? '_blank' : undefined}
-                rel={link.isExternal ? 'noopener noreferrer' : undefined}
-                className="social-pill-link"
-                aria-label={link.ariaLabel}
-                title={link.title}
-              >
-                {link.icon}
-                <span>{link.name}</span>
-              </a>
-            ))}
-          </div>
-        </div>
       </div>
     </footer>
   );
 }
-
 

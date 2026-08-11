@@ -4,6 +4,8 @@ import UploadPanel from './components/UploadPanel';
 import DetailsForm from './components/DetailsForm';
 import BuilderPreview from './components/BuilderPreview';
 import ActionButtons from './components/ActionButtons';
+import ContactSection from './components/ContactSection';
+import Footer from './components/Footer';
 import './App.css';
 
 export default function App() {
@@ -128,6 +130,12 @@ export default function App() {
           />
         </section>
       </main>
+
+      {/* CONNECT WITH THE BUILDER Contact/Social Section */}
+      <ContactSection />
+
+      {/* Footer & Optional Footer CTA */}
+      <Footer />
     </div>
   );
 }

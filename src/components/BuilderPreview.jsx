@@ -14,8 +14,6 @@ export default function BuilderPreview({
   title
 }) {
   useEffect(() => {
-    let isSubscribed = true;
-
     renderGraphic({
       canvas: canvasRef.current,
       mode,
@@ -27,10 +25,6 @@ export default function BuilderPreview({
       stack,
       title
     }).catch(err => console.error('Canvas render error:', err));
-
-    return () => {
-      isSubscribed = false;
-    };
   }, [mode, imageSrc, zoom, panX, panY, name, stack, title, canvasRef]);
 
   const modeClass = mode === 'pfp' ? 'mode-pfp' : 'mode-idcard';

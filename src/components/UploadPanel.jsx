@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { UploadCloud, Image as ImageIcon, ZoomIn, Move, Trash2, RefreshCw, AlertCircle } from 'lucide-react';
+import { UploadCloud, Trash2, RefreshCw, AlertCircle } from 'lucide-react';
 import { validateImageFile } from '../utils/imageValidator';
 
 export default function UploadPanel({
