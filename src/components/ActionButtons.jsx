@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Download, Share2, Check, RefreshCcw } from 'lucide-react';
 
-export default function ActionButtons({ canvasRef, mode, onResetAll }) {
+export default function ActionButtons({ canvasRef, mode, onResetAll, isDownloadEnabled = false }) {
   const [downloaded, setDownloaded] = useState(false);
 
   const handleDownload = () => {
-    if (!canvasRef.current) return;
+    if (!isDownloadEnabled || !canvasRef.current) return;
     const canvas = canvasRef.current;
     const dataUrl = canvas.toDataURL('image/png');
     const link = document.createElement('a');
@@ -35,43 +35,46 @@ export default function ActionButtons({ canvasRef, mode, onResetAll }) {
     <div className="action-buttons">
       <button
         type="button"
-        className="btn-primary"
+        className={`btn-pill-primary-download ${!isDownloadEnabled ? 'disabled' : ''}`}
         onClick={handleDownload}
-        aria-label="Download PNG Image"
+        disabled={!isDownloadEnabled}
+        aria-label="Download Graphic"
+        title={!isDownloadEnabled ? "Please fill in required fields to download" : "Download PNG Graphic"}
       >
         {downloaded ? (
           <>
-            <Check size={20} /> PNG Saved to Downloads!
+            <Check size={20} /> SAVED TO DOWNLOADS!
           </>
         ) : (
           <>
-            <Download size={20} /> Download PNG Image
+            <Download size={20} /> DOWNLOAD
           </>
         )}
       </button>
 
-      <div style={{ display: 'flex', gap: '0.5rem', width: '100%' }}>
+      <div className="secondary-action-row">
         <button
           type="button"
-          className="btn-share"
+          className="btn-pill-outline-pink"
           onClick={handleShareToX}
-          style={{ flex: 2 }}
           aria-label="Share result on Twitter or X"
         >
-          <Share2 size={18} /> Share on X (#FrameInGoa)
+          <Share2 size={18} /> SHARE ON X (#FRAMEINGOA)
         </button>
 
         <button
           type="button"
-          className="btn-secondary"
+          className="btn-pill-outline-green"
           onClick={onResetAll}
-          style={{ flex: 1 }}
           aria-label="Reset and create another graphic"
-          title="Create Another"
+          title="Reset All"
         >
-          <RefreshCcw size={16} /> Reset
+          <RefreshCcw size={16} /> RESET
         </button>
       </div>
     </div>
   );
 }
+
+
+

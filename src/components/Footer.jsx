@@ -52,41 +52,45 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="footer">
-      <p>
-        Built for <strong>Hacker House Goa 2026</strong>. 100% Client-side &amp; Privacy Preserving.
-      </p>
-      <p style={{ fontSize: '0.75rem' }}>
-        Share your graphic on X using{' '}
-        <a
-          href="https://x.com/search?q=%23FrameInGoa"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          #FrameInGoa
-        </a>
-      </p>
+    <footer className="section-footer">
+      <div className="footer-content">
+        <p className="footer-title">
+          HACKER HOUSE GOA 2026 • BUILDER IDENTITY
+        </p>
+        <p className="footer-subtext">
+          100% Client-side &amp; Privacy Preserving. Share your graphic on X using{' '}
+          <a
+            href="https://x.com/search?q=%23FrameInGoa"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="footer-hashtag-link"
+          >
+            #FrameInGoa
+          </a>
+        </p>
 
-      <div className="footer-connect">
-        <span className="footer-connect-label">Connect with me:</span>
-        <div className="footer-social-links">
-          {socialLinks.map((link) => (
-            <a
-              key={link.name}
-              href={link.url}
-              target={link.isExternal ? '_blank' : undefined}
-              rel={link.isExternal ? 'noopener noreferrer' : undefined}
-              className="social-link"
-              aria-label={link.ariaLabel}
-              title={link.title}
-            >
-              {link.icon}
-              <span>{link.name}</span>
-            </a>
-          ))}
+        <div className="footer-connect">
+          <span className="footer-connect-label">CONNECT WITH US:</span>
+          <div className="footer-social-links">
+            {socialLinks.map((link) => (
+              <a
+                key={link.name}
+                href={link.url}
+                target={link.isExternal ? '_blank' : undefined}
+                rel={link.isExternal ? 'noopener noreferrer' : undefined}
+                className="social-pill-link"
+                aria-label={link.ariaLabel}
+                title={link.title}
+              >
+                {link.icon}
+                <span>{link.name}</span>
+              </a>
+            ))}
+          </div>
         </div>
       </div>
     </footer>
   );
 }
+
 

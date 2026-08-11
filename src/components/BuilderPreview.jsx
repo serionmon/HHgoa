@@ -36,9 +36,9 @@ export default function BuilderPreview({
   const modeClass = mode === 'pfp' ? 'mode-pfp' : 'mode-idcard';
 
   return (
-    <div className="preview-panel">
-      <div className="preview-title-badge">
-        <Palmtree size={16} /> LIVE GRAPHIC PREVIEW
+    <div className="preview-container">
+      <div className="preview-header-sticker">
+        ✦ LIVE GRAPHIC PREVIEW
       </div>
 
       <div className={`canvas-wrapper ${modeClass}`}>
@@ -47,3 +47,4 @@ export default function BuilderPreview({
     </div>
   );
 }
+

@@ -61,10 +61,6 @@ export default function UploadPanel({
 
   return (
     <div className="upload-panel">
-      <h3 className="section-title">
-        <ImageIcon size={20} /> 1. Upload & Position Photo
-      </h3>
-
       <input
         type="file"
         ref={fileInputRef}
@@ -76,29 +72,51 @@ export default function UploadPanel({
       />
 
       {!imageSrc ? (
-        <div
-          className={`dropzone ${dragActive ? 'drag-active' : ''}`}
-          onClick={() => fileInputRef.current?.click()}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => e.key === 'Enter' && fileInputRef.current?.click()}
-          aria-label="Upload photo dropzone"
-        >
-          <UploadCloud className="dropzone-icon" />
-          <p className="dropzone-text">
-            <strong>Drop your photo here</strong> or click to browse
-          </p>
-          <span className="dropzone-hint">Supports JPG, PNG, WebP (Max 15MB)</span>
+        <div className="dropzone-outer-wrapper">
+          {/* Coconut Drink Vector Illustration at lower left */}
+          <div className="coconut-drink-illustration" title="Goa Vibes">
+            <svg width="68" height="68" viewBox="0 0 68 68" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 28C12 44.5685 24.4315 58 40 58C55.5685 58 68 44.5685 68 28C68 25.5 67.5 23 66.5 21C64.5 17 60 16 56 16C50 16 45 19 40 19C35 19 30 16 24 16C20 16 15.5 17 13.5 21C12.5 23 12 25.5 12 28Z" fill="#0F5132" stroke="#073420" strokeWidth="2.5"/>
+              <path d="M16 23C16 23 24 20 40 20C56 20 64 23 64 23" stroke="#F5F0DC" strokeWidth="2.5" strokeLinecap="round"/>
+              {/* Straws */}
+              <path d="M28 22L18 4" stroke="#E8177D" strokeWidth="3.5" strokeLinecap="round"/>
+              <path d="M36 21L42 2" stroke="#F5C518" strokeWidth="3.5" strokeLinecap="round"/>
+            </svg>
+          </div>
+
+          <div
+            className={`dropzone ${dragActive ? 'drag-active' : ''}`}
+            onClick={() => fileInputRef.current?.click()}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => e.key === 'Enter' && fileInputRef.current?.click()}
+            aria-label="Upload photo dropzone"
+          >
+            <div className="dropzone-inner-border">
+              <div className="dropzone-icon-wrapper">
+                <UploadCloud className="dropzone-icon" />
+              </div>
+              <p className="dropzone-text">
+                <strong>DRAG &amp; DROP YOUR PHOTO HERE</strong>
+                <span>or click to browse from device</span>
+              </p>
+              <span className="dropzone-format-pill">JPG, PNG, WebP • MAX 15MB</span>
+            </div>
+          </div>
         </div>
       ) : (
-        <div className="photo-controls">
+        <div className="photo-controls-card">
+          <div className="photo-controls-header">
+            <span className="photo-controls-title">✦ PHOTO POSITION</span>
+          </div>
+
           <div className="slider-group">
             <div className="slider-label">
-              <span><ZoomIn size={14} /> Scale Zoom</span>
-              <span>{zoom.toFixed(2)}x</span>
+              <span>SCALE</span>
+              <span className="slider-value">{zoom.toFixed(2)}×</span>
             </div>
             <input
               type="range"
@@ -114,8 +132,8 @@ export default function UploadPanel({
 
           <div className="slider-group">
             <div className="slider-label">
-              <span><Move size={14} /> Horizontal Pan</span>
-              <span>{panX}px</span>
+              <span>HORIZONTAL</span>
+              <span className="slider-value">{panX}px</span>
             </div>
             <input
               type="range"
@@ -131,8 +149,8 @@ export default function UploadPanel({
 
           <div className="slider-group">
             <div className="slider-label">
-              <span><Move size={14} /> Vertical Pan</span>
-              <span>{panY}px</span>
+              <span>VERTICAL</span>
+              <span className="slider-value">{panY}px</span>
             </div>
             <input
               type="range"
@@ -146,42 +164,42 @@ export default function UploadPanel({
             />
           </div>
 
-          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.5rem' }}>
+          <div className="photo-action-bar">
             <button
               type="button"
-              className="btn-secondary"
+              className="btn-pill-secondary"
               onClick={onResetPosition}
-              style={{ flex: 1 }}
             >
-              <RefreshCw size={14} /> Reset Frame
+              <RefreshCw size={14} /> RESET FRAME
             </button>
 
             <button
               type="button"
-              className="btn-secondary"
+              className="btn-pill-secondary"
               onClick={() => fileInputRef.current?.click()}
-              style={{ flex: 1 }}
             >
-              Replace
+              REPLACE PHOTO
             </button>
 
             <button
               type="button"
-              className="btn-danger"
+              className="btn-pill-danger"
               onClick={onRemoveImage}
               aria-label="Remove photo"
+              title="Remove photo"
             >
-              <Trash2 size={14} />
+              <Trash2 size={14} /> REMOVE
             </button>
           </div>
         </div>
       )}
 
       {errorMsg && (
-        <div style={{ color: 'var(--accent-pink)', fontSize: '0.85rem', marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 700 }}>
-          <AlertCircle size={14} /> {errorMsg}
+        <div className="upload-error-banner">
+          <AlertCircle size={16} /> {errorMsg}
         </div>
       )}
     </div>
   );
 }
+
