@@ -14,8 +14,9 @@ export async function renderGraphic({
   panX = 0,
   panY = 0,
   name = '',
-  stack = '',
-  title = '⚡ THE CODE ARCHITECT'
+  teamName = '',
+  title = 'Builder',
+  builderId = 'HHG-717-1026'
 }) {
   if (!canvas) return;
 
@@ -51,7 +52,7 @@ export async function renderGraphic({
   if (mode === 'pfp') {
     renderEditorialPfpFrame(offCtx, targetW, targetH, { img: preloadedImg, zoom, panX, panY });
   } else {
-    renderEditorialBuilderIdCard(offCtx, targetW, targetH, { img: preloadedImg, zoom, panX, panY, name, stack, title });
+    renderEditorialBuilderIdCard(offCtx, targetW, targetH, { img: preloadedImg, zoom, panX, panY, name, teamName, title, builderId });
   }
 
   if (renderId !== currentRenderId) return;
@@ -281,31 +282,119 @@ function drawPalmTree(ctx, x, y, scale = 1, flipX = 1) {
 }
 
 /**
- * Render 1:1 PFP Frame (1080x1080 px)
+ * Render 1:1 PFP Frame Collectible Badge (1080x1080 px)
+ * Palette: Forest Green (#0F5132), Paper Cream (#F5F0DC), Hot Pink (#E8177D), Yellow (#F5C518)
  */
 function renderEditorialPfpFrame(ctx, width, height, { img, zoom, panX, panY }) {
+  const centerX = width / 2;
+  const centerY = height / 2 - 10;
+  const photoRadius = 330; // ~62% of canvas width
+
+  // 1. Forest Green Outer Frame Base (#0F5132)
   ctx.fillStyle = '#0F5132';
   ctx.fillRect(0, 0, width, height);
 
+  // 2. Layered Screen-Print Border Effect
+  // Shadow Offset
+  ctx.fillStyle = '#073420';
+  ctx.fillRect(26, 26, width - 52, height - 52);
+
+  // Outer Thick Cream Border Frame (#F5F0DC)
+  ctx.strokeStyle = '#F5F0DC';
+  ctx.lineWidth = 28;
+  ctx.strokeRect(20, 20, width - 40, height - 40);
+
+  // Dark Inner Border Line
+  ctx.strokeStyle = '#0F5132';
+  ctx.lineWidth = 6;
+  ctx.strokeRect(36, 36, width - 72, height - 72);
+
+  // Yellow Offset Accent Border (#F5C518)
+  ctx.strokeStyle = '#F5C518';
+  ctx.lineWidth = 3.5;
+  ctx.strokeRect(44, 44, width - 88, height - 88);
+
+  // Pink Thin Accent Line (#E8177D)
+  ctx.strokeStyle = '#E8177D';
+  ctx.lineWidth = 2.5;
+  ctx.strokeRect(50, 50, width - 100, height - 100);
+
+  // 3. Tropical Background Artwork (Behind Photo)
+  // Setting Sun behind photo cutout
   ctx.save();
-  const centerX = width / 2;
-  const centerY = height / 2 - 30;
-  ctx.fillStyle = 'rgba(245, 197, 24, 0.06)';
-  const numRays = 16;
-  for (let i = 0; i < numRays; i++) {
-    const angle = (i * 2 * Math.PI) / numRays;
+  ctx.fillStyle = '#F5C518';
+  ctx.beginPath();
+  ctx.arc(centerX, centerY + 180, 160, Math.PI, 0);
+  ctx.fill();
+
+  ctx.strokeStyle = '#0F5132';
+  ctx.lineWidth = 3.5;
+  ctx.stroke();
+
+  // Sun Rays
+  ctx.strokeStyle = '#E8177D';
+  ctx.lineWidth = 3;
+  for (let a = Math.PI + 0.15; a < Math.PI * 2 - 0.15; a += 0.28) {
+    const rx1 = centerX + Math.cos(a) * 165;
+    const ry1 = (centerY + 180) + Math.sin(a) * 165;
+    const rx2 = centerX + Math.cos(a) * 210;
+    const ry2 = (centerY + 180) + Math.sin(a) * 210;
     ctx.beginPath();
-    ctx.moveTo(centerX, centerY);
-    ctx.arc(centerX, centerY, width, angle, angle + Math.PI / (numRays * 2));
-    ctx.closePath();
-    ctx.fill();
+    ctx.moveTo(rx1, ry1);
+    ctx.lineTo(rx2, ry2);
+    ctx.stroke();
   }
   ctx.restore();
 
-  drawPalmTree(ctx, 20, height - 30, 0.95, -1);
-  drawPalmTree(ctx, width - 20, height - 30, 0.95, 1);
+  // Flying Birds
+  ctx.save();
+  ctx.strokeStyle = '#F5F0DC';
+  ctx.lineWidth = 3;
+  drawBird(ctx, 160, 200, 18);
+  drawBird(ctx, 195, 185, 12);
+  drawBird(ctx, width - 180, 205, 16);
+  drawBird(ctx, width - 145, 190, 10);
+  ctx.restore();
 
-  const photoRadius = 360;
+  // Corner Palm Fronds framing top corners
+  drawTopCornerPalmFronds(ctx, width);
+
+  // Bottom Palm Trees framing left & right sides
+  drawPalmTree(ctx, 40, height - 110, 0.85, -1);
+  drawPalmTree(ctx, width - 40, height - 110, 0.85, 1);
+
+  // 4. Hacker Decorative Micro-Elements (Corner/Side Details)
+  ctx.save();
+  ctx.font = '900 16px "JetBrains Mono", monospace';
+  ctx.fillStyle = '#F5C518';
+  ctx.textAlign = 'left';
+  ctx.fillText('</>', 70, 80);
+  ctx.fillText('01', 115, 80);
+
+  ctx.fillStyle = '#E8177D';
+  ctx.textAlign = 'right';
+  ctx.fillText('{ }', width - 115, 80);
+  ctx.fillText('BUILD', width - 70, 80);
+
+  ctx.fillStyle = '#F5F0DC';
+  ctx.textAlign = 'left';
+  ctx.fillText('SHIP', 68, 530);
+
+  ctx.textAlign = 'right';
+  ctx.fillText('GOA', width - 68, 530);
+  ctx.restore();
+
+  // 5. Signature "GOA SUN + CODE" Emblem (Positioned on top-right of photo ring)
+  drawGoaSunCodeEmblem(ctx, centerX + photoRadius - 20, centerY - photoRadius + 60);
+
+  // 6. Hero Photo Cutout & Multi-Layered Rings
+  // Photo Shadow
+  ctx.fillStyle = '#073420';
+  ctx.beginPath();
+  ctx.arc(centerX + 8, centerY + 8, photoRadius, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Photo Content or Custom Integrated Placeholder
   if (img) {
     ctx.save();
     ctx.beginPath();
@@ -322,73 +411,270 @@ function renderEditorialPfpFrame(ctx, width, height, { img, zoom, panX, panY }) 
     ctx.drawImage(img, x, y, drawW, drawH);
     ctx.restore();
   } else {
+    // Custom Badge Placeholder when no image is uploaded
     ctx.fillStyle = '#073420';
     ctx.beginPath();
     ctx.arc(centerX, centerY, photoRadius, 0, Math.PI * 2);
     ctx.fill();
 
+    // Camera Icon Vector
+    ctx.save();
+    ctx.strokeStyle = '#F5C518';
+    ctx.fillStyle = '#0F5132';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    if (ctx.roundRect) {
+      ctx.roundRect(centerX - 40, centerY - 45, 80, 55, 10);
+    } else {
+      ctx.rect(centerX - 40, centerY - 45, 80, 55);
+    }
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.arc(centerX, centerY - 18, 16, 0, Math.PI * 2);
+    ctx.strokeStyle = '#F5C518';
+    ctx.lineWidth = 4;
+    ctx.stroke();
+
+    ctx.fillStyle = '#E8177D';
+    ctx.beginPath();
+    ctx.arc(centerX + 24, centerY - 32, 5, 0, Math.PI * 2);
+    ctx.fill();
+
     ctx.fillStyle = '#F5F0DC';
-    ctx.font = 'bold 30px "JetBrains Mono", monospace';
+    ctx.font = '900 24px "JetBrains Mono", monospace';
     ctx.textAlign = 'center';
-    ctx.fillText('[ UPLOAD YOUR PHOTO ]', centerX, centerY);
+    ctx.fillText('YOUR PHOTO', centerX, centerY + 36);
+
+    ctx.fillStyle = '#F5C518';
+    ctx.font = 'bold 15px "JetBrains Mono", monospace';
+    ctx.fillText('CLICK OR DRAG TO UPLOAD', centerX, centerY + 65);
+    ctx.restore();
   }
 
+  // Multi-layered Ring Framing around Photo
+  // Outer Cream Ring (#F5F0DC)
   ctx.strokeStyle = '#F5F0DC';
   ctx.lineWidth = 14;
   ctx.beginPath();
   ctx.arc(centerX, centerY, photoRadius, 0, Math.PI * 2);
   ctx.stroke();
 
+  // Dark Inner Border Ring (#0F5132)
+  ctx.strokeStyle = '#0F5132';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, photoRadius - 7, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Hot Pink Accent Outer Ring (#E8177D)
   ctx.strokeStyle = '#E8177D';
   ctx.lineWidth = 6;
   ctx.beginPath();
   ctx.arc(centerX, centerY, photoRadius + 12, 0, Math.PI * 2);
   ctx.stroke();
 
+  // Yellow Tick-Mark Outer Ring (#F5C518)
+  ctx.strokeStyle = '#F5C518';
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  ctx.arc(centerX, centerY, photoRadius + 22, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Decorative Notch Ticks around photo ring (8 cardinal/ordinal points)
+  ctx.save();
+  ctx.fillStyle = '#F5C518';
+  for (let i = 0; i < 8; i++) {
+    const ang = (i * Math.PI) / 4;
+    const tx = centerX + Math.cos(ang) * (photoRadius + 22);
+    const ty = centerY + Math.sin(ang) * (photoRadius + 22);
+    ctx.beginPath();
+    ctx.arc(tx, ty, 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#0F5132';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // 7. Top Header Plaque ("HACKER HOUSE GOA • 2026")
+  const headerW = 560;
+  const headerH = 85;
+  const headerX = (width - headerW) / 2;
+  const headerY = 55;
+
+  // Header Plaque Shadow
+  ctx.fillStyle = '#073420';
+  ctx.fillRect(headerX + 6, headerY + 6, headerW, headerH);
+
+  // Header Plaque Base
   ctx.fillStyle = '#F5F0DC';
-  ctx.fillRect(0, 0, width, 120);
-  ctx.fillStyle = '#0F5132';
-  ctx.fillRect(0, 115, width, 6);
-
-  ctx.fillStyle = '#0F5132';
-  ctx.font = '900 48px "Cinzel", "Playfair Display", serif';
-  ctx.textAlign = 'left';
-  ctx.fillText('HACKER HOUSE GOA', 50, 75);
-
-  ctx.fillStyle = '#F5C518';
-  ctx.fillRect(width - 240, 30, 180, 56);
+  ctx.fillRect(headerX, headerY, headerW, headerH);
   ctx.strokeStyle = '#0F5132';
-  ctx.lineWidth = 4;
-  ctx.strokeRect(width - 240, 30, 180, 56);
+  ctx.lineWidth = 4.5;
+  ctx.strokeRect(headerX, headerY, headerW, headerH);
 
+  // Main Header Serif Typography
   ctx.fillStyle = '#0F5132';
-  ctx.font = 'bold 24px "JetBrains Mono", monospace';
+  ctx.font = '900 42px "Cinzel", "Playfair Display", serif';
   ctx.textAlign = 'center';
-  ctx.fillText('2026', width - 150, 66);
+  ctx.fillText('HACKER HOUSE', width / 2, headerY + 44);
 
+  // Subtitle Monospace
   ctx.fillStyle = '#E8177D';
-  ctx.fillRect(0, height - 130, width, 130);
-  ctx.fillStyle = '#0F5132';
-  ctx.fillRect(0, height - 130, width, 6);
+  ctx.font = '900 18px "JetBrains Mono", monospace';
+  ctx.fillText('GOA • 2026', width / 2, headerY + 70);
 
+  // Top Left Stamp Badge ("HHG 26")
+  ctx.fillStyle = '#E8177D';
+  ctx.fillRect(headerX - 55, headerY + 12, 105, 38);
+  ctx.strokeStyle = '#0F5132';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(headerX - 55, headerY + 12, 105, 38);
+
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = '900 16px "JetBrains Mono", monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('HHG 26', headerX - 2, headerY + 37);
+
+  // Top Right Stamp Badge ("BUILDER")
   ctx.fillStyle = '#F5C518';
+  ctx.fillRect(headerX + headerW - 50, headerY + 12, 110, 38);
+  ctx.strokeStyle = '#0F5132';
+  ctx.lineWidth = 3;
+  ctx.strokeRect(headerX + headerW - 50, headerY + 12, 110, 38);
+
+  ctx.fillStyle = '#0F5132';
+  ctx.font = '900 16px "JetBrains Mono", monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('BUILDER', headerX + headerW + 5, headerY + 37);
+
+  // 8. Bottom Layered Badge Block ("BUILD • SHIP • GOA" & "#FrameInGoa")
+  const badgeW = width - 180;
+  const badgeH = 120;
+  const badgeX = (width - badgeW) / 2;
+  const badgeY = height - 165;
+
+  // Bottom Badge Shadow
+  ctx.fillStyle = '#073420';
+  ctx.fillRect(badgeX + 8, badgeY + 8, badgeW, badgeH);
+
+  // Bottom Hot Pink Base
+  ctx.fillStyle = '#E8177D';
+  ctx.fillRect(badgeX, badgeY, badgeW, badgeH);
+  ctx.strokeStyle = '#0F5132';
+  ctx.lineWidth = 5;
+  ctx.strokeRect(badgeX, badgeY, badgeW, badgeH);
+
+  // Inner Cream Border Line inside Badge
+  ctx.strokeStyle = '#F5F0DC';
+  ctx.lineWidth = 2.5;
+  ctx.strokeRect(badgeX + 6, badgeY + 6, badgeW - 12, badgeH - 12);
+
+  // Top Strip: "BUILD • SHIP • GOA"
+  ctx.fillStyle = '#F5C518';
+  ctx.font = '900 20px "JetBrains Mono", monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('BUILD • SHIP • GOA', width / 2, badgeY + 38);
+
+  // Main Hashtag Typography: "#FrameInGoa"
+  ctx.fillStyle = '#FFFFFF';
   ctx.font = '900 52px "Cinzel", "Playfair Display", serif';
   ctx.textAlign = 'center';
-  ctx.fillText('#FrameInGoa', width / 2, height - 50);
+  ctx.fillText('#FrameInGoa', width / 2, badgeY + 95);
 
-  ctx.strokeStyle = '#F5C518';
-  ctx.lineWidth = 20;
-  ctx.strokeRect(10, 10, width - 20, height - 20);
-
+  // Bottom Right Yellow Badge Stamp: "BUILDER 2026"
+  ctx.fillStyle = '#F5C518';
+  ctx.fillRect(badgeX + badgeW - 145, badgeY + badgeH - 26, 140, 32);
   ctx.strokeStyle = '#0F5132';
-  ctx.lineWidth = 6;
-  ctx.strokeRect(20, 20, width - 40, height - 40);
+  ctx.lineWidth = 3;
+  ctx.strokeRect(badgeX + badgeW - 145, badgeY + badgeH - 26, 140, 32);
+
+  ctx.fillStyle = '#0F5132';
+  ctx.font = '900 13px "JetBrains Mono", monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('BUILDER 2026', badgeX + badgeW - 75, badgeY + badgeH - 5);
+}
+
+/**
+ * Draws top corner palm leaf fronds
+ */
+function drawTopCornerPalmFronds(ctx, width) {
+  ctx.save();
+  ctx.fillStyle = '#0F5132';
+  ctx.strokeStyle = '#F5F0DC';
+  ctx.lineWidth = 2.5;
+
+  // Left Top Corner Frond
+  ctx.save();
+  ctx.translate(50, 50);
+  ctx.rotate(0.6);
+  for (let i = 0; i < 4; i++) {
+    ctx.rotate(0.35);
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.quadraticCurveTo(50, -12, 90, 8);
+    ctx.quadraticCurveTo(40, 6, 0, 0);
+    ctx.fill();
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  // Right Top Corner Frond
+  ctx.save();
+  ctx.translate(width - 50, 50);
+  ctx.rotate(-0.6);
+  for (let i = 0; i < 4; i++) {
+    ctx.rotate(-0.35);
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.quadraticCurveTo(-50, -12, -90, 8);
+    ctx.quadraticCurveTo(-40, 6, 0, 0);
+    ctx.fill();
+    ctx.stroke();
+  }
+  ctx.restore();
+
+  ctx.restore();
+}
+
+/**
+ * Draws signature "GOA SUN + CODE" emblem badge
+ */
+function drawGoaSunCodeEmblem(ctx, x, y) {
+  ctx.save();
+  ctx.translate(x, y);
+
+  // Outer Yellow Sun Disc (#F5C518)
+  ctx.fillStyle = '#F5C518';
+  ctx.beginPath();
+  ctx.arc(0, 0, 34, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.strokeStyle = '#0F5132';
+  ctx.lineWidth = 3.5;
+  ctx.stroke();
+
+  // Hot Pink Inner Ring (#E8177D)
+  ctx.strokeStyle = '#E8177D';
+  ctx.lineWidth = 2.5;
+  ctx.beginPath();
+  ctx.arc(0, 0, 28, 0, Math.PI * 2);
+  ctx.stroke();
+
+  // Center Code Symbol "< />"
+  ctx.fillStyle = '#0F5132';
+  ctx.font = '900 18px "JetBrains Mono", monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('</>', 0, 6);
+
+  ctx.restore();
 }
 
 /**
  * Render 3:4 Builder ID Card (1200x1600 px) matching Reference Image
  */
-function renderEditorialBuilderIdCard(ctx, width, height, { img, zoom, panX, panY, name = '', stack = '', title = '' }) {
+function renderEditorialBuilderIdCard(ctx, width, height, { img, zoom, panX, panY, name = '', teamName = '', title = '', builderId = 'HHG-717-1026' }) {
   // 1. Forest Green Outer Frame Base (#0F5132)
   ctx.fillStyle = '#0F5132';
   ctx.fillRect(0, 0, width, height);
@@ -497,31 +783,46 @@ function renderEditorialBuilderIdCard(ctx, width, height, { img, zoom, panX, pan
   ctx.strokeRect(cardX + 60, detailsY, cardW - 120, 54);
 
   ctx.fillStyle = '#0F5132';
-  ctx.font = '900 24px "JetBrains Mono", monospace';
+  const displayTitle = (title && title.trim()) ? title.trim().toUpperCase() : 'BUILDER';
+  if (displayTitle.length > 26) {
+    ctx.font = '900 18px "JetBrains Mono", monospace';
+  } else if (displayTitle.length > 20) {
+    ctx.font = '900 20px "JetBrains Mono", monospace';
+  } else {
+    ctx.font = '900 24px "JetBrains Mono", monospace';
+  }
   ctx.textAlign = 'center';
-  const displayTitle = (title && title.trim()) ? title.trim().toUpperCase() : '⚡ THE CODE ARCHITECT';
   ctx.fillText(displayTitle, width / 2, detailsY + 36);
 
-  // USER NAME — DYNAMICALLY DISPLAY USER'S FIRST NAME (ROHIT SHARMA -> ROHIT)
+  // USER NAME — EXACTLY WHAT THE USER ENTERED
   ctx.fillStyle = '#0F5132';
-  ctx.font = '900 64px "Cinzel", "Playfair Display", serif';
-  ctx.textAlign = 'center';
-  let displayName = 'ROHIT';
-  if (name && name.trim()) {
-    const trimmed = name.trim().replace(/^@/, '');
-    const parts = trimmed.split(/\s+/);
-    displayName = parts[0].toUpperCase();
+  const displayName = (name && name.trim()) ? name.trim().toUpperCase() : 'YOUR NAME';
+  if (displayName.length > 22) {
+    ctx.font = '900 38px "Cinzel", "Playfair Display", serif';
+  } else if (displayName.length > 15) {
+    ctx.font = '900 48px "Cinzel", "Playfair Display", serif';
+  } else {
+    ctx.font = '900 64px "Cinzel", "Playfair Display", serif';
   }
+  ctx.textAlign = 'center';
   ctx.fillText(displayName, width / 2, detailsY + 155);
 
-  // Stack / Primary Role Field (Hot Pink)
+  // Team Name Field (Hot Pink) — DISPLAY ENTERED TEAM NAME OR SOLO BUILDER IF EMPTY
   ctx.fillStyle = '#E8177D';
-  ctx.font = 'bold 28px "JetBrains Mono", monospace';
+  const displayTeam = (teamName && teamName.trim()) 
+    ? (teamName.trim().toUpperCase().startsWith('TEAM') ? teamName.trim().toUpperCase() : `TEAM: ${teamName.trim().toUpperCase()}`)
+    : 'SOLO BUILDER';
+  if (displayTeam.length > 26) {
+    ctx.font = 'bold 20px "JetBrains Mono", monospace';
+  } else if (displayTeam.length > 20) {
+    ctx.font = 'bold 24px "JetBrains Mono", monospace';
+  } else {
+    ctx.font = 'bold 28px "JetBrains Mono", monospace';
+  }
   ctx.textAlign = 'center';
-  const displayStack = (stack && stack.trim()) ? stack.trim().toUpperCase() : 'FULL-STACK DEVELOPER';
-  ctx.fillText(displayStack, width / 2, detailsY + 210);
+  ctx.fillText(displayTeam, width / 2, detailsY + 210);
 
-  // 6. Card Footer Bar — Hot Pink Corner Wave Block & ID
+  // 6. Card Footer Bar — Hot Pink Corner Wave Block & Stable ID
   const footerY = cardY + cardH - 70;
 
   // Hot Pink Wave Corner Block at Bottom-Left (#E8177D)
@@ -541,7 +842,8 @@ function renderEditorialBuilderIdCard(ctx, width, height, { img, zoom, panX, pan
   ctx.fillStyle = '#0F5132';
   ctx.font = 'bold 20px "JetBrains Mono", monospace';
   ctx.textAlign = 'right';
-  ctx.fillText('ID: HH2026-XY9281', cardX + cardW - 40, cardY + cardH - 30);
+  const displayId = builderId || 'HHG-717-1026';
+  ctx.fillText(`ID: ${displayId}`, cardX + cardW - 40, cardY + cardH - 30);
 }
 
 

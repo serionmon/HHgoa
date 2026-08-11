@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
-import { Download, Share2, Check, RefreshCcw } from 'lucide-react';
+import { Download, Share2, Check, RefreshCcw, AlertCircle } from 'lucide-react';
 
-export default function ActionButtons({ canvasRef, mode, onResetAll, isDownloadEnabled = false }) {
+export default function ActionButtons({
+  canvasRef,
+  mode,
+  onResetAll,
+  isDownloadEnabled = false
+}) {
   const [downloaded, setDownloaded] = useState(false);
+  const [isSharing, setIsSharing] = useState(false);
 
   const handleDownload = () => {
     if (!isDownloadEnabled || !canvasRef.current) return;
@@ -23,23 +29,63 @@ export default function ActionButtons({ canvasRef, mode, onResetAll, isDownloadE
     setTimeout(() => setDownloaded(false), 3000);
   };
 
-  const handleShareToX = () => {
-    const text = encodeURIComponent(
-      'Building, shipping, and framing my identity at Hacker House Goa 2026! 🚀🌴\n\n#FrameInGoa @HackerHouseGoa'
-    );
-    const shareUrl = `https://twitter.com/intent/tweet?text=${text}`;
+  const openXWebIntent = (shareText) => {
+    const shareUrl = `https://x.com/intent/post?text=${encodeURIComponent(shareText)}`;
     window.open(shareUrl, '_blank', 'noopener,noreferrer');
+  };
+
+  const handleShareToX = () => {
+    if (!isDownloadEnabled || !canvasRef.current) return;
+
+    const shareText = "Building under the sun 🌴\nMy Hacker House Goa 2026 Builder Identity.\n#FrameInGoa";
+    const canvas = canvasRef.current;
+
+    setIsSharing(true);
+
+    if (typeof navigator !== 'undefined' && navigator.canShare && canvas.toBlob) {
+      canvas.toBlob(async (blob) => {
+        setIsSharing(false);
+        if (blob) {
+          try {
+            const file = new File([blob], 'HH_Goa_2026_Builder_Identity.png', { type: 'image/png' });
+            if (navigator.canShare({ files: [file] })) {
+              await navigator.share({
+                files: [file],
+                title: 'Hacker House Goa 2026',
+                text: shareText
+              });
+              return;
+            }
+          } catch (err) {
+            if (err.name === 'AbortError') {
+              return; // User dismissed share sheet
+            }
+            console.warn('Native file share error, using web intent fallback:', err);
+          }
+        }
+        openXWebIntent(shareText);
+      }, 'image/png');
+    } else {
+      setIsSharing(false);
+      openXWebIntent(shareText);
+    }
   };
 
   return (
     <div className="action-buttons">
+      {!isDownloadEnabled && (
+        <div className="validation-warning-message">
+          <AlertCircle size={16} /> Add your photo and complete your details.
+        </div>
+      )}
+
       <button
         type="button"
         className={`btn-pill-primary-download ${!isDownloadEnabled ? 'disabled' : ''}`}
         onClick={handleDownload}
         disabled={!isDownloadEnabled}
         aria-label="Download Graphic"
-        title={!isDownloadEnabled ? "Please fill in required fields to download" : "Download PNG Graphic"}
+        title={!isDownloadEnabled ? "Add your photo and complete your details." : "Download PNG Graphic"}
       >
         {downloaded ? (
           <>
@@ -55,11 +101,13 @@ export default function ActionButtons({ canvasRef, mode, onResetAll, isDownloadE
       <div className="secondary-action-row">
         <button
           type="button"
-          className="btn-pill-outline-pink"
+          className={`btn-pill-outline-pink ${!isDownloadEnabled ? 'disabled' : ''}`}
           onClick={handleShareToX}
-          aria-label="Share result on Twitter or X"
+          disabled={!isDownloadEnabled}
+          aria-label="Share result on X"
+          title={!isDownloadEnabled ? "Add your photo and complete your details." : "Share on X"}
         >
-          <Share2 size={18} /> SHARE ON X (#FRAMEINGOA)
+          <Share2 size={18} /> {isSharing ? 'PREPARING...' : 'SHARE ON X (#FRAMEINGOA)'}
         </button>
 
         <button
@@ -75,6 +123,3 @@ export default function ActionButtons({ canvasRef, mode, onResetAll, isDownloadE
     </div>
   );
 }
-
-
-

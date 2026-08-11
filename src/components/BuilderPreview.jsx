@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { Palmtree } from 'lucide-react';
 import { renderGraphic } from '../utils/imageGenerator';
 
 export default function BuilderPreview({
@@ -10,8 +9,9 @@ export default function BuilderPreview({
   panX,
   panY,
   name,
-  stack,
-  title
+  teamName,
+  title,
+  builderId
 }) {
   useEffect(() => {
     renderGraphic({
@@ -22,10 +22,11 @@ export default function BuilderPreview({
       panX,
       panY,
       name,
-      stack,
-      title
+      teamName,
+      title,
+      builderId
     }).catch(err => console.error('Canvas render error:', err));
-  }, [mode, imageSrc, zoom, panX, panY, name, stack, title, canvasRef]);
+  }, [mode, imageSrc, zoom, panX, panY, name, teamName, title, builderId, canvasRef]);
 
   const modeClass = mode === 'pfp' ? 'mode-pfp' : 'mode-idcard';
 
@@ -41,4 +42,3 @@ export default function BuilderPreview({
     </div>
   );
 }
-

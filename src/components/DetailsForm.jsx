@@ -1,19 +1,39 @@
-import React from 'react';
-import { User, Sparkles } from 'lucide-react';
-import { getRandomBuilderTitle } from '../utils/titleGenerator';
+import React, { useState, useRef, useEffect } from 'react';
+import { User, Sparkles, ChevronDown, Check } from 'lucide-react';
+import { BUILDER_TITLES, getRandomBuilderTitle } from '../utils/titleGenerator';
 
 export default function DetailsForm({
   name,
   setName,
-  stack,
-  setStack,
+  teamName,
+  setTeamName,
   title,
   setTitle
 }) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+
   const handleGenerateRandomTitle = () => {
     const newTitle = getRandomBuilderTitle();
     setTitle(newTitle);
   };
+
+  const handleSelectTitle = (selectedTitle) => {
+    setTitle(selectedTitle);
+    setIsMenuOpen(false);
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   return (
     <div className="details-form" id="builder-credentials">
@@ -23,48 +43,61 @@ export default function DetailsForm({
 
       <div className="form-group">
         <label className="form-label" htmlFor="input-name">
-          NAME / HANDLE
+          NAME
         </label>
         <input
           id="input-name"
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="e.g. Rohit Sharma or @rohit_dev"
-          maxLength={32}
-          className="form-input"
-        />
-      </div>
-
-      <div className="form-group">
-        <label className="form-label" htmlFor="input-stack">
-          STACK / PRIMARY ROLE
-        </label>
-        <input
-          id="input-stack"
-          type="text"
-          value={stack}
-          onChange={(e) => setStack(e.target.value)}
-          placeholder="e.g. MERN / Rust &amp; React / UI Designer"
+          placeholder="Enter your name"
           maxLength={36}
           className="form-input"
         />
       </div>
 
       <div className="form-group">
+        <label className="form-label" htmlFor="input-team">
+          TEAM NAME
+        </label>
+        <input
+          id="input-team"
+          type="text"
+          value={teamName}
+          onChange={(e) => setTeamName(e.target.value)}
+          placeholder="Enter your team name"
+          maxLength={40}
+          className="form-input"
+        />
+      </div>
+
+      <div className="form-group" ref={menuRef}>
         <label className="form-label" htmlFor="input-title">
           BUILDER TITLE
         </label>
         <div className="title-generator-wrapper">
-          <input
-            id="input-title"
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="⚡ THE CODE ARCHITECT"
-            maxLength={40}
-            className="form-input title-input"
-          />
+          <div className="title-input-relative">
+            <input
+              id="input-title"
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              onClick={() => setIsMenuOpen(true)}
+              placeholder="Select or enter title"
+              maxLength={40}
+              className="form-input title-input"
+            />
+            <button
+              type="button"
+              className="title-dropdown-trigger"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-label="Toggle title selection menu"
+              title="Select title"
+            >
+              <ChevronDown size={18} className={`chevron-icon ${isMenuOpen ? 'open' : ''}`} />
+            </button>
+          </div>
+
           <button
             type="button"
             className="btn-pill-shuffle"
@@ -74,9 +107,34 @@ export default function DetailsForm({
             <Sparkles size={16} /> SHUFFLE
           </button>
         </div>
+
+        {/* Compact Popover Menu for Selecting Builder Title */}
+        {isMenuOpen && (
+          <div className="builder-title-dropdown-menu">
+            <div className="dropdown-menu-header">
+              <span>SELECT BUILDER TITLE</span>
+            </div>
+            <div className="dropdown-menu-options">
+              {BUILDER_TITLES.map((itemTitle) => {
+                const isSelected = title === itemTitle;
+                return (
+                  <button
+                    key={itemTitle}
+                    type="button"
+                    className={`title-option-btn ${isSelected ? 'selected' : ''}`}
+                    onClick={() => handleSelectTitle(itemTitle)}
+                  >
+                    <span>{itemTitle}</span>
+                    {isSelected && <Check size={16} className="title-check-icon" />}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Beach Shoreline Vector Illustration below form matching lower left reference */}
+      {/* Beach Shoreline Vector Illustration below form */}
       <div className="left-form-beach-illustration">
         <svg viewBox="0 0 500 160" fill="none" xmlns="http://www.w3.org/2000/svg" className="beach-svg">
           {/* Sailboat in ocean */}
@@ -116,5 +174,3 @@ export default function DetailsForm({
     </div>
   );
 }
-
-

@@ -6,11 +6,15 @@ import BuilderPreview from './components/BuilderPreview';
 import ActionButtons from './components/ActionButtons';
 import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
+import { generateBuilderId } from './utils/titleGenerator';
 import './App.css';
 
 export default function App() {
   const [mode, setMode] = useState('idcard'); // 'idcard' (3:4) | 'pfp' (1:1)
   const [imageSrc, setImageSrc] = useState(null);
+
+  // Stable Builder ID generated once per session
+  const [builderId] = useState(() => generateBuilderId());
 
   // Transformations
   const [zoom, setZoom] = useState(1);
@@ -19,8 +23,8 @@ export default function App() {
 
   // Builder Details
   const [name, setName] = useState('');
-  const [stack, setStack] = useState('');
-  const [title, setTitle] = useState('⚡ THE CODE ARCHITECT');
+  const [teamName, setTeamName] = useState('');
+  const [title, setTitle] = useState('Builder');
 
   const canvasRef = useRef(null);
 
@@ -38,24 +42,25 @@ export default function App() {
   const handleResetAll = () => {
     setImageSrc(null);
     setName('');
-    setStack('');
-    setTitle('⚡ THE CODE ARCHITECT');
+    setTeamName('');
+    setTitle('Builder');
     handleResetPosition();
   };
 
-  // Download validation criteria per requirement
+  // Download & Share validation criteria (Required: Photo, Name, Title. Team Name is optional)
   const isPhotoUploaded = !!imageSrc;
   const isNameFilled = !!(name && name.trim());
-  const isStackFilled = !!(stack && stack.trim());
   const isTitleFilled = !!(title && title.trim());
 
+  const isFormComplete = isPhotoUploaded && isNameFilled && isTitleFilled;
+
   const isDownloadEnabled = mode === 'idcard'
-    ? (isPhotoUploaded && isNameFilled && isStackFilled && isTitleFilled)
+    ? isFormComplete
     : isPhotoUploaded;
 
   return (
     <div className="app-container">
-      {/* Reference Top Minimal Ribbon */}
+      {/* Top Header Bar */}
       <div className="reference-top-header">
         <span className="top-studio-tag">2:47PM STUDIO</span>
         <span className="top-event-tag">HH GOA '26</span>
@@ -66,15 +71,14 @@ export default function App() {
         <ModeSelector mode={mode} onModeChange={setMode} />
       </div>
 
-      {/* Main Two-Column Reference Layout */}
+      {/* Main Two-Column Layout */}
       <main className="builder-grid-container">
-        {/* Top Left Hanging Palm Frond Vector Illustration */}
+        {/* Top Left Hanging Palm Frond Illustration */}
         <div className="top-left-palm-frond" title="Goa Palms">
           <svg viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M0 0Q60 40 130 30" stroke="#0F5132" strokeWidth="3" fill="none"/>
             <path d="M0 0Q40 50 110 90" stroke="#0F5132" strokeWidth="3" fill="none"/>
             <path d="M0 0Q20 70 60 135" stroke="#0F5132" strokeWidth="3" fill="none"/>
-            {/* Frond Blades */}
             <path d="M30 18Q70 10 110 25Q60 30 30 18Z" fill="#0F5132"/>
             <path d="M25 35Q80 40 120 75Q65 65 25 35Z" fill="#0F5132"/>
             <path d="M15 50Q50 90 70 130Q40 85 15 50Z" fill="#0F5132"/>
@@ -100,15 +104,15 @@ export default function App() {
             <DetailsForm
               name={name}
               setName={setName}
-              stack={stack}
-              setStack={setStack}
+              teamName={teamName}
+              setTeamName={setTeamName}
               title={title}
               setTitle={setTitle}
             />
           )}
         </section>
 
-        {/* RIGHT COLUMN: Live Builder Pass Preview & Action Dock */}
+        {/* RIGHT COLUMN: Live Graphic Preview & Actions */}
         <section className="right-preview-column" aria-label="Live Graphic Preview">
           <BuilderPreview
             canvasRef={canvasRef}
@@ -118,8 +122,9 @@ export default function App() {
             panX={panX}
             panY={panY}
             name={name}
-            stack={stack}
+            teamName={teamName}
             title={title}
+            builderId={builderId}
           />
 
           <ActionButtons
@@ -131,15 +136,11 @@ export default function App() {
         </section>
       </main>
 
-      {/* CONNECT WITH THE BUILDER Contact/Social Section */}
+      {/* Unified Contact / Social Section */}
       <ContactSection />
 
-      {/* Footer & Optional Footer CTA */}
+      {/* Footer */}
       <Footer />
     </div>
   );
 }
-
-
-
-

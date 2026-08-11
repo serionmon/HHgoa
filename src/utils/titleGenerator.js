@@ -1,16 +1,19 @@
-const BUILDER_TITLES = [
-  "⚡ THE CODE ARCHITECT",
-  "🚀 FULL-STACK CYBERNAUT",
-  "🛡️ SYSTEM DEFENDER",
-  "🔥 PROTOCOL BUILDER",
-  "🧠 ALGORITHM ALCHEMIST",
-  "🌐 WEB3 PIONEER",
-  "🌴 GOA HACKER",
-  "🎨 PIXEL CRAFTSMAN",
-  "⚡ BYTE WRANGLER",
-  "🧬 DATA ENGINEER",
-  "✨ UI VISIONARY",
-  "🛠️ INFRASTRUCTURE MAGE"
+export const BUILDER_TITLES = [
+  "AI Engineer",
+  "Builder",
+  "Full Stack Developer",
+  "Frontend Engineer",
+  "Backend Engineer",
+  "Data Engineer",
+  "ML Engineer",
+  "UI/UX Designer",
+  "Open Source Builder",
+  "Product Engineer",
+  "Code Architect",
+  "Indie Hacker",
+  "Creative Technologist",
+  "Problem Solver",
+  "All Rounder"
 ];
 
 export function getRandomBuilderTitle() {
@@ -18,14 +21,8 @@ export function getRandomBuilderTitle() {
   return BUILDER_TITLES[index];
 }
 
-export function getDeterministicTitle(name = '', stack = '') {
-  if (!name && !stack) return BUILDER_TITLES[0];
-  const combined = `${name.toLowerCase()}-${stack.toLowerCase()}`;
-  let hash = 0;
-  for (let i = 0; i < combined.length; i++) {
-    hash = (hash << 5) - hash + combined.charCodeAt(i);
-    hash |= 0;
-  }
-  const index = Math.abs(hash) % BUILDER_TITLES.length;
-  return BUILDER_TITLES[index];
+export function generateBuilderId() {
+  const num = Math.floor(100 + Math.random() * 900);
+  const suffix = Math.floor(1000 + Math.random() * 9000);
+  return `HHG-${num}-${suffix}`;
 }
