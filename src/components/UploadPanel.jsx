@@ -34,6 +34,18 @@ export default function UploadPanel({
     reader.onload = (e) => {
       onImageSelected(e.target.result);
       if (fileInputRef.current) fileInputRef.current.value = '';
+
+      if (typeof window !== 'undefined' && window.innerWidth <= 768) {
+        setTimeout(() => {
+          const target = document.getElementById('builder-credentials');
+          if (target) {
+            target.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }
+        }, 80);
+      }
     };
     reader.readAsDataURL(file);
   };

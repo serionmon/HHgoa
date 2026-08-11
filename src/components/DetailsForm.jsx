@@ -16,7 +16,7 @@ export default function DetailsForm({
   };
 
   return (
-    <div className="details-form">
+    <div className="details-form" id="builder-credentials">
       <h3 className="section-credentials-heading">
         <User size={20} className="credentials-icon" /> 02. BUILDER PASS CREDENTIALS
       </h3>
