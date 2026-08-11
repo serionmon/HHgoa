@@ -9,6 +9,13 @@ export default function ActionButtons({
 }) {
   const [downloaded, setDownloaded] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
+  const timeoutRef = React.useRef(null);
+
+  React.useEffect(() => {
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
+  }, []);
 
   const handleDownload = () => {
     if (!isDownloadEnabled || !canvasRef.current) return;
@@ -26,7 +33,8 @@ export default function ActionButtons({
     document.body.removeChild(link);
 
     setDownloaded(true);
-    setTimeout(() => setDownloaded(false), 3000);
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => setDownloaded(false), 3000);
   };
 
   const openXWebIntent = (shareText) => {

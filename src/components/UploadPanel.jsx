@@ -31,6 +31,10 @@ export default function UploadPanel({
 
     setErrorMsg(null);
     const reader = new FileReader();
+    reader.onerror = () => {
+      setErrorMsg('Failed to read image file. Please try another photo.');
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    };
     reader.onload = (e) => {
       onImageSelected(e.target.result);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -71,6 +75,13 @@ export default function UploadPanel({
     }
   };
 
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      fileInputRef.current?.click();
+    }
+  };
+
   return (
     <div className="upload-panel">
       <input
@@ -104,7 +115,7 @@ export default function UploadPanel({
             onDrop={handleDrop}
             role="button"
             tabIndex={0}
-            onKeyDown={(e) => e.key === 'Enter' && fileInputRef.current?.click()}
+            onKeyDown={handleKeyDown}
             aria-label="Upload photo dropzone"
           >
             <div className="dropzone-inner-border">

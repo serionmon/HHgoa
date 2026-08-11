@@ -42,6 +42,12 @@ export function loadImage(src) {
     return Promise.resolve(imageCache.get(src));
   }
 
+  // Evict oldest cached image if cache size exceeds 10 to prevent memory leaks
+  if (imageCache.size >= 10) {
+    const firstKey = imageCache.keys().next().value;
+    imageCache.delete(firstKey);
+  }
+
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = 'anonymous';
