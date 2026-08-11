@@ -57,29 +57,32 @@ export default function ContactSection() {
       </div>
 
       <div className="contact-cards-grid">
-        {contactLinks.map((item) => (
-          <a
-            key={item.name}
-            href={item.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="contact-card"
-            aria-label={item.ariaLabel}
-          >
-            <div className="contact-card-top">
-              <div className="contact-card-title-group">
-                <span className="contact-card-icon-box">{item.icon}</span>
-                <span className="contact-card-label">{item.name}</span>
+        {contactLinks.map((item) => {
+          const isMail = item.url.startsWith('mailto:');
+          return (
+            <a
+              key={item.name}
+              href={item.url}
+              target={isMail ? undefined : '_blank'}
+              rel={isMail ? undefined : 'noopener noreferrer'}
+              className="contact-card"
+              aria-label={item.ariaLabel}
+            >
+              <div className="contact-card-top">
+                <div className="contact-card-title-group">
+                  <span className="contact-card-icon-box">{item.icon}</span>
+                  <span className="contact-card-label">{item.name}</span>
+                </div>
+                <span className="contact-card-arrow-badge">
+                  <ArrowUpRight size={16} />
+                </span>
               </div>
-              <span className="contact-card-arrow-badge">
-                <ArrowUpRight size={16} />
-              </span>
-            </div>
-            <div className="contact-card-bottom">
-              <span className="contact-card-username">{item.handle}</span>
-            </div>
-          </a>
-        ))}
+              <div className="contact-card-bottom">
+                <span className="contact-card-username">{item.handle}</span>
+              </div>
+            </a>
+          );
+        })}
       </div>
     </section>
   );

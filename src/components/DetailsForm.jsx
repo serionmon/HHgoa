@@ -93,12 +93,18 @@ export default function DetailsForm({
               placeholder="Select or enter title"
               maxLength={40}
               className="form-input title-input"
+              role="combobox"
+              aria-expanded={isMenuOpen}
+              aria-haspopup="listbox"
+              aria-controls="builder-title-listbox"
+              aria-autocomplete="list"
             />
             <button
               type="button"
               className="title-dropdown-trigger"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               aria-label="Toggle title selection menu"
+              aria-expanded={isMenuOpen}
               title="Select title"
             >
               <ChevronDown size={18} className={`chevron-icon ${isMenuOpen ? 'open' : ''}`} />
@@ -117,7 +123,7 @@ export default function DetailsForm({
 
         {/* Compact Popover Menu for Selecting Builder Title */}
         {isMenuOpen && (
-          <div className="builder-title-dropdown-menu">
+          <div className="builder-title-dropdown-menu" id="builder-title-listbox" role="listbox">
             <div className="dropdown-menu-header">
               <span>SELECT BUILDER TITLE</span>
             </div>
@@ -128,6 +134,8 @@ export default function DetailsForm({
                   <button
                     key={itemTitle}
                     type="button"
+                    role="option"
+                    aria-selected={isSelected}
                     className={`title-option-btn ${isSelected ? 'selected' : ''}`}
                     onClick={() => handleSelectTitle(itemTitle)}
                   >

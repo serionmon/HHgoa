@@ -348,6 +348,16 @@
   box-shadow: 3px 3px 0px var(--accent-pink);
 }
 
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+.dropzone:focus-visible,
+.segmented-ticket-btn:focus-visible,
+.title-option-btn:focus-visible {
+  outline: 3px solid var(--accent-pink) !important;
+  outline-offset: 2px !important;
+}
+
 .subtle-example-text {
   font-family: var(--font-mono);
   font-size: 0.75rem;
