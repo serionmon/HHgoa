@@ -17,16 +17,23 @@ export default function ActionButtons({
     };
   }, []);
 
+  const getFilename = () => {
+    if (mode === 'team') return 'HH_Goa_2026_Team_Frame.png';
+    if (mode === 'pfp') return 'HH_Goa_2026_PFP_Frame.png';
+    return 'HH_Goa_2026_Builder_ID_Card.png';
+  };
+
+  const getWarningMessage = () => {
+    if (mode === 'team') return 'Add at least 2 builders with photos and names to download.';
+    return 'Add your photo and complete your details.';
+  };
+
   const handleDownload = () => {
     if (!isDownloadEnabled || !canvasRef.current) return;
     const canvas = canvasRef.current;
     const dataUrl = canvas.toDataURL('image/png');
     const link = document.createElement('a');
-    const filename = mode === 'pfp' 
-      ? 'HH_Goa_2026_PFP_Frame.png' 
-      : 'HH_Goa_2026_Builder_ID_Card.png';
-
-    link.download = filename;
+    link.download = getFilename();
     link.href = dataUrl;
     document.body.appendChild(link);
     link.click();
@@ -45,7 +52,9 @@ export default function ActionButtons({
   const handleShareToX = () => {
     if (!isDownloadEnabled || !canvasRef.current) return;
 
-    const shareText = "Building under the sun 🌴\nMy Hacker House Goa 2026 Builder Identity.\n#FrameInGoa";
+    const shareText = mode === 'team'
+      ? "Building together under the sun 🌴\nOur Hacker House Goa 2026 Team Frame.\n#FrameInGoa"
+      : "Building under the sun 🌴\nMy Hacker House Goa 2026 Builder Identity.\n#FrameInGoa";
     const canvas = canvasRef.current;
 
     setIsSharing(true);
@@ -55,7 +64,7 @@ export default function ActionButtons({
         setIsSharing(false);
         if (blob) {
           try {
-            const file = new File([blob], 'HH_Goa_2026_Builder_Identity.png', { type: 'image/png' });
+            const file = new File([blob], getFilename(), { type: 'image/png' });
             if (navigator.canShare({ files: [file] })) {
               await navigator.share({
                 files: [file],
@@ -79,11 +88,13 @@ export default function ActionButtons({
     }
   };
 
+  const warningMsg = getWarningMessage();
+
   return (
     <div className="action-buttons">
       {!isDownloadEnabled && (
         <div className="validation-warning-message">
-          <AlertCircle size={16} /> Add your photo and complete your details.
+          <AlertCircle size={16} /> {warningMsg}
         </div>
       )}
 
@@ -93,7 +104,7 @@ export default function ActionButtons({
         onClick={handleDownload}
         disabled={!isDownloadEnabled}
         aria-label="Download Graphic"
-        title={!isDownloadEnabled ? "Add your photo and complete your details." : "Download PNG Graphic"}
+        title={!isDownloadEnabled ? warningMsg : "Download PNG Graphic"}
       >
         {downloaded ? (
           <>
@@ -113,7 +124,7 @@ export default function ActionButtons({
           onClick={handleShareToX}
           disabled={!isDownloadEnabled}
           aria-label="Share result on X"
-          title={!isDownloadEnabled ? "Add your photo and complete your details." : "Share on X"}
+          title={!isDownloadEnabled ? warningMsg : "Share on X"}
         >
           <Share2 size={18} /> {isSharing ? 'PREPARING...' : 'SHARE ON X (#FRAMEINGOA)'}
         </button>
@@ -131,3 +142,4 @@ export default function ActionButtons({
     </div>
   );
 }
+

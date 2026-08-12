@@ -11,7 +11,8 @@ export default function BuilderPreview({
   name,
   teamName,
   title,
-  builderId
+  builderId,
+  builders = []
 }) {
   useEffect(() => {
     renderGraphic({
@@ -24,11 +25,12 @@ export default function BuilderPreview({
       name,
       teamName,
       title,
-      builderId
+      builderId,
+      builders
     }).catch(err => console.error('Canvas render error:', err));
-  }, [mode, imageSrc, zoom, panX, panY, name, teamName, title, builderId, canvasRef]);
+  }, [mode, imageSrc, zoom, panX, panY, name, teamName, title, builderId, builders, canvasRef]);
 
-  const modeClass = mode === 'pfp' ? 'mode-pfp' : 'mode-idcard';
+  const modeClass = mode === 'team' ? 'mode-team' : (mode === 'pfp' ? 'mode-pfp' : 'mode-idcard');
 
   return (
     <div className="preview-container">
@@ -42,3 +44,4 @@ export default function BuilderPreview({
     </div>
   );
 }
+

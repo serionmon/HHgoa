@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldCheck, Palmtree } from 'lucide-react';
+import { ShieldCheck, Palmtree, Users } from 'lucide-react';
 
 export default function ModeSelector({ mode, onModeChange }) {
   return (
@@ -29,9 +29,22 @@ export default function ModeSelector({ mode, onModeChange }) {
             <span className="ticket-ratio-badge">1:1</span>
           </div>
         </button>
+
+        <button
+          className={`segmented-ticket-btn ${mode === 'team' ? 'active' : ''}`}
+          onClick={() => onModeChange('team')}
+          type="button"
+          aria-pressed={mode === 'team'}
+        >
+          <div className="ticket-btn-content">
+            <span className="ticket-title"><Users size={18} /> TEAM FRAME</span>
+            <span className="ticket-ratio-badge">16:9</span>
+          </div>
+        </button>
       </div>
     </div>
   );
 }
+
 
 

@@ -8,7 +8,7 @@ let currentRenderId = 0;
  */
 export async function renderGraphic({
   canvas,
-  mode = 'idcard', // 'idcard' | 'pfp'
+  mode = 'idcard', // 'idcard' | 'pfp' | 'team'
   imageSrc = null,
   zoom = 1,
   panX = 0,
@@ -16,14 +16,15 @@ export async function renderGraphic({
   name = '',
   teamName = '',
   title = 'Builder',
-  builderId = 'HHG-717-1026'
+  builderId = 'HHG-717-1026',
+  builders = []
 }) {
   if (!canvas) return;
 
   const renderId = ++currentRenderId;
 
-  const targetW = mode === 'pfp' ? 1080 : 1200;
-  const targetH = mode === 'pfp' ? 1080 : 1600;
+  const targetW = mode === 'team' ? 1920 : (mode === 'pfp' ? 1080 : 1200);
+  const targetH = mode === 'team' ? 1080 : (mode === 'pfp' ? 1080 : 1600);
 
   const offscreen = document.createElement('canvas');
   offscreen.width = targetW;
@@ -39,7 +40,23 @@ export async function renderGraphic({
   }
 
   let preloadedImg = null;
-  if (imageSrc) {
+  let loadedBuilders = [];
+
+  if (mode === 'team') {
+    loadedBuilders = await Promise.all(
+      builders.map(async (b) => {
+        let img = null;
+        if (b.imageSrc) {
+          try {
+            img = await loadImage(b.imageSrc);
+          } catch (e) {
+            console.warn('Could not preload team photo:', e);
+          }
+        }
+        return { ...b, img };
+      })
+    );
+  } else if (imageSrc) {
     try {
       preloadedImg = await loadImage(imageSrc);
     } catch (e) {
@@ -51,6 +68,8 @@ export async function renderGraphic({
 
   if (mode === 'pfp') {
     renderEditorialPfpFrame(offCtx, targetW, targetH, { img: preloadedImg, zoom, panX, panY });
+  } else if (mode === 'team') {
+    renderEditorialTeamFrame(offCtx, targetW, targetH, loadedBuilders);
   } else {
     renderEditorialBuilderIdCard(offCtx, targetW, targetH, { img: preloadedImg, zoom, panX, panY, name, teamName, title, builderId });
   }
@@ -844,6 +863,384 @@ function renderEditorialBuilderIdCard(ctx, width, height, { img, zoom, panX, pan
   ctx.textAlign = 'right';
   const displayId = builderId || 'HHG-717-1026';
   ctx.fillText(`ID: ${displayId}`, cardX + cardW - 40, cardY + cardH - 30);
+}
+
+/**
+ * Render 16:9 Team Combined Frame (1920x1080 px) matching HH Goa design system
+ */
+function renderEditorialTeamFrame(ctx, width, height, loadedBuilders = []) {
+  // 1. Forest Green Outer Frame Base (#0F5132)
+  ctx.fillStyle = '#0F5132';
+  ctx.fillRect(0, 0, width, height);
+
+  // Outer Cream Frame Border
+  ctx.strokeStyle = '#F5F0DC';
+  ctx.lineWidth = 20;
+  ctx.strokeRect(24, 24, width - 48, height - 48);
+
+  ctx.strokeStyle = '#0F5132';
+  ctx.lineWidth = 6;
+  ctx.strokeRect(34, 34, width - 68, height - 68);
+
+  // 2. Central Warm Cream Paper Pass Card (#F5F0DC)
+  const cardX = 70;
+  const cardY = 70;
+  const cardW = width - 140;
+  const cardH = height - 140;
+
+  // Paper Offset Shadow
+  ctx.fillStyle = '#073420';
+  ctx.fillRect(cardX + 16, cardY + 16, cardW, cardH);
+
+  // Cream Base
+  ctx.fillStyle = '#F5F0DC';
+  ctx.fillRect(cardX, cardY, cardW, cardH);
+  ctx.strokeStyle = '#0F5132';
+  ctx.lineWidth = 7;
+  ctx.strokeRect(cardX, cardY, cardW, cardH);
+
+  // Tropical Beach Background Artwork in Card
+  drawReferenceGoaBeachEnvironment(ctx, cardX, cardY, cardW, cardH);
+
+  // Top Corner Fronds
+  drawTopCornerPalmFronds(ctx, cardW + cardX);
+
+  // 3. Card Header Ribbon & Typography
+  // Hot Pink Stamp Badge on Left
+  ctx.fillStyle = '#E8177D';
+  ctx.fillRect(cardX + 40, cardY + 35, 160, 48);
+  ctx.strokeStyle = '#0F5132';
+  ctx.lineWidth = 3.5;
+  ctx.strokeRect(cardX + 40, cardY + 35, 160, 48);
+
+  ctx.fillStyle = '#ffffff';
+  ctx.font = 'bold 20px "JetBrains Mono", monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('HH GOA', cardX + 120, cardY + 66);
+
+  // Title: "HACKER HOUSE GOA 2026"
+  ctx.fillStyle = '#0F5132';
+  ctx.font = '900 44px "Cinzel", "Playfair Display", serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('HACKER HOUSE GOA', cardX + 230, cardY + 73);
+
+  // Subtitle Badge on Right ("TEAM COMBINED FRAME")
+  ctx.fillStyle = '#F5C518';
+  ctx.fillRect(cardX + cardW - 340, cardY + 35, 300, 48);
+  ctx.strokeStyle = '#0F5132';
+  ctx.lineWidth = 3.5;
+  ctx.strokeRect(cardX + cardW - 340, cardY + 35, 300, 48);
+
+  ctx.fillStyle = '#0F5132';
+  ctx.font = '900 18px "JetBrains Mono", monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('TEAM COMBINED FRAME', cardX + cardW - 190, cardY + 65);
+
+  // Top Separator Line
+  ctx.strokeStyle = '#0F5132';
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(cardX + 40, cardY + 105);
+  ctx.lineTo(cardX + cardW - 40, cardY + 105);
+  ctx.stroke();
+
+  // 4. Footer Bar
+  const footerY = cardY + cardH - 65;
+
+  // Hot Pink Wave Corner Block
+  ctx.fillStyle = '#E8177D';
+  ctx.beginPath();
+  ctx.moveTo(cardX + 4, footerY - 45);
+  ctx.quadraticCurveTo(cardX + 260, footerY - 35, cardX + 360, cardY + cardH - 4);
+  ctx.lineTo(cardX + 4, cardY + cardH - 4);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = '#ffffff';
+  ctx.font = '900 34px "Cinzel", "Playfair Display", serif';
+  ctx.textAlign = 'left';
+  ctx.fillText('#FRAMEINGOA', cardX + 30, cardY + cardH - 25);
+
+  // Team Size Badge on Right
+  ctx.fillStyle = '#0F5132';
+  ctx.font = 'bold 20px "JetBrains Mono", monospace';
+  ctx.textAlign = 'right';
+  const countText = `SQUAD: ${loadedBuilders.length} BUILDERS`;
+  ctx.fillText(countText, cardX + cardW - 40, cardY + cardH - 25);
+
+  // 5. Render Teammate Cards Grid
+  const count = Math.min(Math.max(loadedBuilders.length, 2), 6);
+  const gridX = cardX + 50;
+  const gridY = cardY + 125;
+  const gridW = cardW - 100;
+  const gridH = cardH - 210;
+
+  if (count <= 3) {
+    // 1-Row Vertical Layout (2 or 3 builders)
+    const cardW_item = count === 2 ? 620 : 480;
+    const cardH_item = 570;
+    const totalW = count * cardW_item;
+    const gapX = (gridW - totalW) / (count + 1);
+    const startY = gridY + (gridH - cardH_item) / 2;
+
+    loadedBuilders.forEach((builder, idx) => {
+      const bx = gridX + gapX * (idx + 1) + cardW_item * idx;
+      const by = startY;
+      renderVerticalTeammateCard(ctx, bx, by, cardW_item, cardH_item, builder, idx);
+    });
+  } else {
+    // 2-Row Horizontal Layout (4, 5, or 6 builders)
+    const cardW_item = 500;
+    const cardH_item = 260;
+    const gapY = 30;
+
+    let row1Count = 2;
+    let row2Count = 2;
+
+    if (count === 5) {
+      row1Count = 3;
+      row2Count = 2;
+    } else if (count === 6) {
+      row1Count = 3;
+      row2Count = 3;
+    }
+
+    const row1W = row1Count * cardW_item;
+    const gapX1 = (gridW - row1W) / (row1Count + 1);
+    const y1 = gridY + 20;
+
+    for (let i = 0; i < row1Count; i++) {
+      const bx = gridX + gapX1 * (i + 1) + cardW_item * i;
+      renderHorizontalTeammateCard(ctx, bx, y1, cardW_item, cardH_item, loadedBuilders[i], i);
+    }
+
+    const row2W = row2Count * cardW_item;
+    const gapX2 = (gridW - row2W) / (row2Count + 1);
+    const y2 = y1 + cardH_item + gapY;
+
+    for (let i = 0; i < row2Count; i++) {
+      const idx = row1Count + i;
+      if (idx < loadedBuilders.length) {
+        const bx = gridX + gapX2 * (i + 1) + cardW_item * i;
+        renderHorizontalTeammateCard(ctx, bx, y2, cardW_item, cardH_item, loadedBuilders[idx], idx);
+      }
+    }
+  }
+}
+
+/**
+ * Renders a vertical teammate card inside team frame (for 2-3 builders)
+ */
+function renderVerticalTeammateCard(ctx, x, y, w, h, builder, index) {
+  ctx.save();
+  // Card Shadow
+  ctx.fillStyle = '#073420';
+  ctx.fillRect(x + 10, y + 10, w, h);
+
+  // Card Base (#FFFFFF)
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillRect(x, y, w, h);
+  ctx.strokeStyle = '#0F5132';
+  ctx.lineWidth = 5;
+  ctx.strokeRect(x, y, w, h);
+
+  // Teammate Header Badge
+  ctx.fillStyle = '#0F5132';
+  ctx.fillRect(x, y, w, 44);
+  ctx.fillStyle = '#F5C518';
+  ctx.font = '900 18px "JetBrains Mono", monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(`✦ BUILDER 0${index + 1}`, x + w / 2, y + 28);
+
+  // Photo Frame Slot
+  const photoMargin = 20;
+  const photoW = w - photoMargin * 2;
+  const photoH = h - 180;
+  const photoX = x + photoMargin;
+  const photoY = y + 58;
+
+  // Photo Box Background & Shadow
+  ctx.fillStyle = '#ECE5C9';
+  ctx.fillRect(photoX, photoY, photoW, photoH);
+
+  if (builder && builder.img) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(photoX, photoY, photoW, photoH);
+    ctx.clip();
+
+    const zoom = builder.zoom || 1;
+    const panX = builder.panX || 0;
+    const panY = builder.panY || 0;
+
+    const scale = Math.max(photoW / builder.img.width, photoH / builder.img.height) * zoom;
+    const drawW = builder.img.width * scale;
+    const drawH = builder.img.height * scale;
+    const px = photoX + (photoW - drawW) / 2 + panX * 1.5;
+    const py = photoY + (photoH - drawH) / 2 + panY * 1.5;
+
+    ctx.drawImage(builder.img, px, py, drawW, drawH);
+    ctx.restore();
+  } else {
+    // Camera placeholder
+    ctx.fillStyle = '#0F5132';
+    ctx.font = 'bold 20px "JetBrains Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('ADD PHOTO', photoX + photoW / 2, photoY + photoH / 2);
+  }
+
+  // Photo Frame Border
+  ctx.strokeStyle = '#0F5132';
+  ctx.lineWidth = 4;
+  ctx.strokeRect(photoX, photoY, photoW, photoH);
+
+  // Teammate Name
+  const nameY = photoY + photoH + 42;
+  ctx.fillStyle = '#0F5132';
+  const nameText = (builder && builder.name && builder.name.trim()) 
+    ? builder.name.trim().toUpperCase() 
+    : `BUILDER 0${index + 1}`;
+
+  if (nameText.length > 18) {
+    ctx.font = '900 24px "Cinzel", "Playfair Display", serif';
+  } else if (nameText.length > 12) {
+    ctx.font = '900 30px "Cinzel", "Playfair Display", serif';
+  } else {
+    ctx.font = '900 36px "Cinzel", "Playfair Display", serif';
+  }
+  ctx.textAlign = 'center';
+  ctx.fillText(nameText, x + w / 2, nameY);
+
+  // Teammate Stack / Role
+  const roleY = nameY + 36;
+  ctx.fillStyle = '#E8177D';
+  const roleText = (builder && builder.role && builder.role.trim()) 
+    ? builder.role.trim().toUpperCase() 
+    : 'BUILDER';
+
+  if (roleText.length > 22) {
+    ctx.font = 'bold 15px "JetBrains Mono", monospace';
+  } else if (roleText.length > 15) {
+    ctx.font = 'bold 18px "JetBrains Mono", monospace';
+  } else {
+    ctx.font = 'bold 20px "JetBrains Mono", monospace';
+  }
+  ctx.textAlign = 'center';
+  ctx.fillText(roleText, x + w / 2, roleY);
+
+  ctx.restore();
+}
+
+/**
+ * Renders a horizontal teammate card inside team frame (for 4-6 builders)
+ */
+function renderHorizontalTeammateCard(ctx, x, y, w, h, builder, index) {
+  ctx.save();
+  // Card Shadow
+  ctx.fillStyle = '#073420';
+  ctx.fillRect(x + 8, y + 8, w, h);
+
+  // Card Base (#FFFFFF)
+  ctx.fillStyle = '#FFFFFF';
+  ctx.fillRect(x, y, w, h);
+  ctx.strokeStyle = '#0F5132';
+  ctx.lineWidth = 5;
+  ctx.strokeRect(x, y, w, h);
+
+  // Photo Frame Slot (Left Side)
+  const photoSize = h - 24;
+  const photoX = x + 12;
+  const photoY = y + 12;
+
+  ctx.fillStyle = '#ECE5C9';
+  ctx.fillRect(photoX, photoY, photoSize, photoSize);
+
+  if (builder && builder.img) {
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(photoX, photoY, photoSize, photoSize);
+    ctx.clip();
+
+    const zoom = builder.zoom || 1;
+    const panX = builder.panX || 0;
+    const panY = builder.panY || 0;
+
+    const scale = Math.max(photoSize / builder.img.width, photoSize / builder.img.height) * zoom;
+    const drawW = builder.img.width * scale;
+    const drawH = builder.img.height * scale;
+    const px = photoX + (photoSize - drawW) / 2 + panX * 1.2;
+    const py = photoY + (photoSize - drawH) / 2 + panY * 1.2;
+
+    ctx.drawImage(builder.img, px, py, drawW, drawH);
+    ctx.restore();
+  } else {
+    ctx.fillStyle = '#0F5132';
+    ctx.font = 'bold 16px "JetBrains Mono", monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText('ADD PHOTO', photoX + photoSize / 2, photoY + photoSize / 2);
+  }
+
+  ctx.strokeStyle = '#0F5132';
+  ctx.lineWidth = 4;
+  ctx.strokeRect(photoX, photoY, photoSize, photoSize);
+
+  // Right Side Details
+  const infoX = photoX + photoSize + 20;
+  const infoW = w - (photoSize + 40);
+
+  // Teammate Header Badge
+  ctx.fillStyle = '#F5C518';
+  ctx.fillRect(infoX, y + 18, infoW, 34);
+  ctx.strokeStyle = '#0F5132';
+  ctx.lineWidth = 2.5;
+  ctx.strokeRect(infoX, y + 18, infoW, 34);
+
+  ctx.fillStyle = '#0F5132';
+  ctx.font = '900 15px "JetBrains Mono", monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText(`✦ BUILDER 0${index + 1}`, infoX + infoW / 2, y + 41);
+
+  // Teammate Name
+  const nameY = y + 115;
+  ctx.fillStyle = '#0F5132';
+  const nameText = (builder && builder.name && builder.name.trim()) 
+    ? builder.name.trim().toUpperCase() 
+    : `BUILDER 0${index + 1}`;
+
+  if (nameText.length > 18) {
+    ctx.font = '900 20px "Cinzel", "Playfair Display", serif';
+  } else if (nameText.length > 12) {
+    ctx.font = '900 24px "Cinzel", "Playfair Display", serif';
+  } else {
+    ctx.font = '900 30px "Cinzel", "Playfair Display", serif';
+  }
+  ctx.textAlign = 'center';
+  ctx.fillText(nameText, infoX + infoW / 2, nameY);
+
+  // Teammate Role / Stack Badge
+  const roleY = y + 175;
+  ctx.fillStyle = '#E8177D';
+  ctx.fillRect(infoX, roleY, infoW, 42);
+  ctx.strokeStyle = '#0F5132';
+  ctx.lineWidth = 2.5;
+  ctx.strokeRect(infoX, roleY, infoW, 42);
+
+  ctx.fillStyle = '#FFFFFF';
+  const roleText = (builder && builder.role && builder.role.trim()) 
+    ? builder.role.trim().toUpperCase() 
+    : 'BUILDER';
+
+  if (roleText.length > 20) {
+    ctx.font = 'bold 13px "JetBrains Mono", monospace';
+  } else if (roleText.length > 14) {
+    ctx.font = 'bold 15px "JetBrains Mono", monospace';
+  } else {
+    ctx.font = 'bold 17px "JetBrains Mono", monospace';
+  }
+  ctx.textAlign = 'center';
+  ctx.fillText(roleText, infoX + infoW / 2, roleY + 27);
+
+  ctx.restore();
 }
 
 

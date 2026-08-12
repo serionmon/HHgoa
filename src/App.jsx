@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import ModeSelector from './components/ModeSelector';
 import UploadPanel from './components/UploadPanel';
 import DetailsForm from './components/DetailsForm';
+import TeamPanel from './components/TeamPanel';
 import BuilderPreview from './components/BuilderPreview';
 import ActionButtons from './components/ActionButtons';
 import ContactSection from './components/ContactSection';
@@ -9,8 +10,18 @@ import Footer from './components/Footer';
 import { generateBuilderId } from './utils/titleGenerator';
 import './App.css';
 
+const createEmptyBuilder = (id) => ({
+  id,
+  imageSrc: null,
+  name: '',
+  role: '',
+  zoom: 1,
+  panX: 0,
+  panY: 0
+});
+
 export default function App() {
-  const [mode, setMode] = useState('idcard'); // 'idcard' (3:4) | 'pfp' (1:1)
+  const [mode, setMode] = useState('idcard'); // 'idcard' (3:4) | 'pfp' (1:1) | 'team' (16:9)
   const [imageSrc, setImageSrc] = useState(null);
 
   // Stable Builder ID generated once per session
@@ -26,6 +37,12 @@ export default function App() {
   const [teamName, setTeamName] = useState('');
   const [title, setTitle] = useState('Builder');
 
+  // Team Frame State (Default 2 builders)
+  const [builders, setBuilders] = useState([
+    createEmptyBuilder(1),
+    createEmptyBuilder(2)
+  ]);
+
   const canvasRef = useRef(null);
 
   const handleResetPosition = () => {
@@ -40,11 +57,35 @@ export default function App() {
   };
 
   const handleResetAll = () => {
-    setImageSrc(null);
-    setName('');
-    setTeamName('');
-    setTitle('Builder');
-    handleResetPosition();
+    if (mode === 'team') {
+      setBuilders([
+        createEmptyBuilder(Date.now()),
+        createEmptyBuilder(Date.now() + 1)
+      ]);
+    } else {
+      setImageSrc(null);
+      setName('');
+      setTeamName('');
+      setTitle('Builder');
+      handleResetPosition();
+    }
+  };
+
+  // Team Handlers
+  const handleAddBuilder = () => {
+    if (builders.length >= 6) return;
+    setBuilders((prev) => [...prev, createEmptyBuilder(Date.now())]);
+  };
+
+  const handleRemoveBuilder = (id) => {
+    if (builders.length <= 2) return;
+    setBuilders((prev) => prev.filter((b) => b.id !== id));
+  };
+
+  const handleUpdateBuilder = (id, updates) => {
+    setBuilders((prev) =>
+      prev.map((b) => (b.id === id ? { ...b, ...updates } : b))
+    );
   };
 
   // Download & Share validation criteria (Required: Photo, Name, Title. Team Name is optional)
@@ -54,9 +95,14 @@ export default function App() {
 
   const isFormComplete = isPhotoUploaded && isNameFilled && isTitleFilled;
 
-  const isDownloadEnabled = mode === 'idcard'
-    ? isFormComplete
-    : isPhotoUploaded;
+  // Validation for Team Mode (Requires at least 2 builders, all loaded with photo & non-empty name)
+  const isTeamValid = mode === 'team' &&
+    builders.length >= 2 &&
+    builders.every(b => !!b.imageSrc && !!(b.name && b.name.trim()));
+
+  const isDownloadEnabled = mode === 'team'
+    ? isTeamValid
+    : (mode === 'idcard' ? isFormComplete : isPhotoUploaded);
 
   return (
     <div className="app-container">
@@ -66,7 +112,7 @@ export default function App() {
         <span className="top-event-tag">HH GOA '26</span>
       </div>
 
-      {/* Mode Selector Component (3:4 Builder ID Card ↔ 1:1 PFP Frame) */}
+      {/* Mode Selector Component (3:4 Builder ID Card ↔ 1:1 PFP Frame ↔ 16:9 Team Frame) */}
       <div className="app-mode-selector-container">
         <ModeSelector mode={mode} onModeChange={setMode} />
       </div>
@@ -87,28 +133,39 @@ export default function App() {
 
         {/* LEFT COLUMN: Upload & Form Controls */}
         <section className="left-controls-column" aria-label="Builder Form & Upload">
-          <UploadPanel
-            imageSrc={imageSrc}
-            onImageSelected={setImageSrc}
-            onRemoveImage={handleRemoveImage}
-            zoom={zoom}
-            setZoom={setZoom}
-            panX={panX}
-            setPanX={setPanX}
-            panY={panY}
-            setPanY={setPanY}
-            onResetPosition={handleResetPosition}
-          />
-
-          {mode === 'idcard' && (
-            <DetailsForm
-              name={name}
-              setName={setName}
-              teamName={teamName}
-              setTeamName={setTeamName}
-              title={title}
-              setTitle={setTitle}
+          {mode === 'team' ? (
+            <TeamPanel
+              builders={builders}
+              onAddBuilder={handleAddBuilder}
+              onRemoveBuilder={handleRemoveBuilder}
+              onUpdateBuilder={handleUpdateBuilder}
             />
+          ) : (
+            <>
+              <UploadPanel
+                imageSrc={imageSrc}
+                onImageSelected={setImageSrc}
+                onRemoveImage={handleRemoveImage}
+                zoom={zoom}
+                setZoom={setZoom}
+                panX={panX}
+                setPanX={setPanX}
+                panY={panY}
+                setPanY={setPanY}
+                onResetPosition={handleResetPosition}
+              />
+
+              {mode === 'idcard' && (
+                <DetailsForm
+                  name={name}
+                  setName={setName}
+                  teamName={teamName}
+                  setTeamName={setTeamName}
+                  title={title}
+                  setTitle={setTitle}
+                />
+              )}
+            </>
           )}
         </section>
 
@@ -125,6 +182,7 @@ export default function App() {
             teamName={teamName}
             title={title}
             builderId={builderId}
+            builders={builders}
           />
 
           <ActionButtons
