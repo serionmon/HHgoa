@@ -33,7 +33,7 @@ export default function ContactSection() {
     {
       name: 'LINKEDIN',
       handle: 'Rohit',
-      url: 'https://www.linkedin.com/in/rohit-38a9b6428/',
+      url: 'https://www.linkedin.com/in/rohit-291080429/',
       icon: <Linkedin size={20} className="contact-card-icon" />,
       ariaLabel: 'LinkedIn Rohit'
     },
