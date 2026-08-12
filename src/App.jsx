@@ -88,6 +88,18 @@ export default function App() {
     );
   };
 
+  const handleMoveBuilder = (index, direction) => {
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex < 0 || targetIndex >= builders.length) return;
+    setBuilders((prev) => {
+      const list = [...prev];
+      const temp = list[index];
+      list[index] = list[targetIndex];
+      list[targetIndex] = temp;
+      return list;
+    });
+  };
+
   // Download & Share validation criteria (Required: Photo, Name, Title. Team Name is optional)
   const isPhotoUploaded = !!imageSrc;
   const isNameFilled = !!(name && name.trim());
@@ -139,6 +151,7 @@ export default function App() {
               onAddBuilder={handleAddBuilder}
               onRemoveBuilder={handleRemoveBuilder}
               onUpdateBuilder={handleUpdateBuilder}
+              onMoveBuilder={handleMoveBuilder}
             />
           ) : (
             <>

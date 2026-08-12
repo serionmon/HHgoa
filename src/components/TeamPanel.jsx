@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { UploadCloud, Trash2, RefreshCw, UserPlus, Users, AlertCircle } from 'lucide-react';
+import { UploadCloud, Trash2, RefreshCw, UserPlus, Users, AlertCircle, ArrowUp, ArrowDown, HelpCircle } from 'lucide-react';
 import { validateImageFile } from '../utils/imageValidator';
 
 function TeammateItem({
@@ -7,7 +7,8 @@ function TeammateItem({
   index,
   totalBuilders,
   onUpdate,
-  onRemove
+  onRemove,
+  onMove
 }) {
   const fileInputRef = useRef(null);
   const [dragActive, setDragActive] = useState(false);
@@ -33,6 +34,15 @@ function TeammateItem({
     reader.onload = (e) => {
       onUpdate(builder.id, { imageSrc: e.target.result });
       if (fileInputRef.current) fileInputRef.current.value = '';
+
+      if (typeof window !== 'undefined' && window.innerWidth <= 768) {
+        setTimeout(() => {
+          const target = document.getElementById(`team-builder-card-${builder.id}`);
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 80);
+      }
     };
     reader.readAsDataURL(file);
   };
@@ -66,23 +76,51 @@ function TeammateItem({
   };
 
   return (
-    <div className="team-builder-card">
+    <div className="team-builder-card" id={`team-builder-card-${builder.id}`}>
       <div className="team-builder-card-header">
         <span className="team-builder-number-badge">
           ✦ BUILDER 0{index + 1}
         </span>
 
-        {totalBuilders > 2 && (
-          <button
-            type="button"
-            className="btn-remove-teammate"
-            onClick={() => onRemove(builder.id)}
-            aria-label={`Remove Teammate ${builder.name ? builder.name : index + 1}`}
-            title={`Remove Teammate ${index + 1}`}
-          >
-            <Trash2 size={14} /> REMOVE
-          </button>
-        )}
+        <div className="team-builder-header-actions">
+          {/* Reordering Controls */}
+          {totalBuilders > 1 && (
+            <div className="reorder-btn-group">
+              <button
+                type="button"
+                className="btn-reorder"
+                onClick={() => onMove(index, 'up')}
+                disabled={index === 0}
+                aria-label={`Move Teammate ${index + 1} up`}
+                title="Move Up"
+              >
+                <ArrowUp size={14} />
+              </button>
+              <button
+                type="button"
+                className="btn-reorder"
+                onClick={() => onMove(index, 'down')}
+                disabled={index === totalBuilders - 1}
+                aria-label={`Move Teammate ${index + 1} down`}
+                title="Move Down"
+              >
+                <ArrowDown size={14} />
+              </button>
+            </div>
+          )}
+
+          {totalBuilders > 2 && (
+            <button
+              type="button"
+              className="btn-remove-teammate"
+              onClick={() => onRemove(builder.id)}
+              aria-label={`Remove Teammate ${builder.name ? builder.name : index + 1}`}
+              title={`Remove Teammate ${index + 1}`}
+            >
+              <Trash2 size={14} /> REMOVE
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="team-builder-card-body">
@@ -233,7 +271,7 @@ function TeammateItem({
 
           <div className="form-group flex-1">
             <label className="form-label" htmlFor={`team-role-${builder.id}`}>
-              STACK / ROLE
+              STACK / ROLE / TITLE
             </label>
             <input
               id={`team-role-${builder.id}`}
@@ -255,12 +293,23 @@ export default function TeamPanel({
   builders,
   onAddBuilder,
   onRemoveBuilder,
-  onUpdateBuilder
+  onUpdateBuilder,
+  onMoveBuilder
 }) {
   const maxReached = builders.length >= 6;
 
   return (
     <div className="team-panel" id="team-credentials">
+      {/* HOW TO Instructions Banner */}
+      <div className="team-howto-banner">
+        <div className="howto-header">
+          <HelpCircle size={16} /> ✦ HOW TO GENERATE TEAM FRAME
+        </div>
+        <p className="howto-text">
+          Upload/add teammates → add details → generate → download/share using <strong>#FrameInGoa</strong>.
+        </p>
+      </div>
+
       <div className="team-panel-header">
         <h3 className="section-credentials-heading">
           <Users size={20} className="credentials-icon" /> 02. TEAM SQUAD BUILDER
@@ -279,6 +328,7 @@ export default function TeamPanel({
             totalBuilders={builders.length}
             onUpdate={onUpdateBuilder}
             onRemove={onRemoveBuilder}
+            onMove={onMoveBuilder}
           />
         ))}
       </div>

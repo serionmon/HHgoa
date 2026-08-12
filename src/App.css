@@ -1848,4 +1848,78 @@ input:focus-visible,
   }
 }
 
+/* HOW TO Banner & Reorder Controls */
+.team-howto-banner {
+  background-color: var(--paper-cream);
+  border: 2.5px solid var(--text-dark);
+  border-radius: var(--radius-md);
+  box-shadow: 3px 3px 0px var(--text-dark);
+  padding: 0.85rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.howto-header {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 900;
+  color: var(--accent-pink);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.howto-text {
+  font-family: var(--font-body);
+  font-size: 0.84rem;
+  color: var(--text-dark);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.howto-text strong {
+  color: var(--accent-pink);
+}
+
+.team-builder-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.reorder-btn-group {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.btn-reorder {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  background-color: var(--paper-cream-dark);
+  color: var(--text-dark);
+  border: 1.5px solid var(--text-dark);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  padding: 0;
+}
+
+.btn-reorder:hover:not(:disabled) {
+  background-color: var(--accent-yellow);
+  transform: translateY(-1px);
+}
+
+.btn-reorder:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+
 
